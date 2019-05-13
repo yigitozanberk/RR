@@ -1,0 +1,397 @@
+---
+title: "RR W1 Classes"
+author: "yob"
+date: "5/13/2019"
+output: pdf_document
+---
+
+#What is Reproducible Research About
+
+-code monkey song
+
+-symphony orchestra 
+
+there isn't a common system of communication. many cases words are not enough. 
+
+sometimes it's enormously complex. 
+
+dynamic documents are one solution. 
+
+##Concepts and Ideas
+
+the ultimate standard for strengthening scientific evidence is replication of findings and conducting studies with independent:
+-investigators
+-data
+-analytical methods
+-laboratories
+-instruments
+
+
+some studies cannot be replicated:
+-no time, opportunistic
+-no money
+-unique
+
+reproducibility creates a middle ground between replication and doing nothing.
+
+-existing databases can be merged into new "megadatabases"
+
+-internet-based health and air pollution surveilance system (iHAPSS)
+you can check the published research in this site.
+
+
+Research pipeline:
+
+measured data ---(processing code)--> analytic data ---(analytic code)--->computational results--...
+
+#what do we need
+
+-analytic data are available
+-analytic code are available
+-documentation of code and data
+-standard means of distribution
+
+#literate (statistical) programming
+
+-an article is a stream of *text* and *code*
+
+-analysis code is divided into text and code "chunks"
+
+-each code chunk loads data and computes results
+
+-presentation code format results (tables, figures, etc)
+
+-article text explains what is going on
+
+-literate programs can be weaved to produce human-readable documents, tangled to produce manchine-readable code
+
+sweave uses LATEX and R as the documentation and programming languages
+
+an alternative is knitr. knitr uses R as the programming language, and variety of documentation languages
+-latex, markdown, html
+
+#scripting your analysis
+
+basic principle: **script everything**
+
+##Structure of a data analysis
+
+-define the question
+
+-define the ideal data set
+
+-determine what data you can access
+
+-obtain the data
+
+-clean the data 
+
+-exploratory data analysis
+
+-statistical prediction/modeling
+
+-interpret results
+
+-challenge results
+
+-synthesize/write up results
+
+-create reproducible code
+
+
+#an example
+
+-start with a general question
+
+can I automatically detect emails that are SPAM that are not?
+
+-make it concrete
+
+can i use quantitative characteristics of the emails to classify them as SPAM?
+
+#define the ideal data set
+
+the data set may depend on your goal
+
+-descriptive : a while population
+
+-exploratory : a random sample with many variables measured
+
+-inferential : the right population, randomly sampled
+
+-predictive : a training and test data set from the sample population
+model and a classifier
+
+-causal : data from a randomized study
+
+-mechanistic : data about all components of the system
+
+#determine what data you can access
+
+sometimes you can find data free on the web
+
+other times you may need to buy the data
+
+be sure to respect the terms of use
+
+if the data don't exist, you may need to generate it yourself
+
+
+#obtain the data
+
+try to obtain the raw data
+
+be sure to reference the source
+
+polite emails go a long way
+
+if you will load the data from an internet source, record the url and time accessed
+
+```{r}
+library(kernlab)
+```
+
+
+#clean the data
+
+raw data often needs to be processed.
+
+if it's pre-processed, make sure you understand how
+
+understand the source of the data
+
+may need reformating, subsampling - record these steps
+
+determine if the data are good enough - if not, quit or change data
+
+
+```{r}
+data(spam)
+#cleaned data
+str(spam[, 1:5])
+```
+
+the question: can i automatically detect emails that are spam or ham?
+
+
+#we need to generate a test and training set(prediction)
+```{r}
+#perform the subsampling
+
+set.seed(3435)
+trainIndicator = rbinom(4601, size = 1, prob = 0.5)
+table(trainIndicator)
+```
+
+setting the test and training set apart
+```{r}
+trainSpam = spam[trainIndicator == 1, ]
+testSpam = spam[trainIndicator == 0, ]
+```
+
+look at summaries, check for missing data, create exploratory plots, perform exploratory analyses(e.g. clustering)
+
+```{r}
+names(trainSpam)
+```
+
+```{r}
+head(trainSpam)
+```
+
+frequencies of words within each of the emails
+
+```{r}
+table(trainSpam$type)
+```
+
+```{r}
+plot(trainSpam$capitalAve ~ trainSpam$type)
+```
+data are highly skewed, so look at the log transformation
+
+#there are a lot of zeroes. taking the log of 0 is problematic, just add 1 to see what it looks like.
+typically you don't just add 1 to a variable. since we 're just exploring the data it's ok. 
+
+```{r}
+plot(log10(trainSpam$capitalAve + 1) ~ trainSpam$type)
+
+```
+
+
+look at pairwise relationships
+
+```{r}
+plot(log10(trainSpam[, 1:4] + 1))
+```
+some of them are not particularly correlated
+
+```{r}
+hCluster = hclust(dist(t(trainSpam[, 1:57])))
+plot(hCluster)
+```
+
+review the cluster analysis after transformation. not useful yet
+
+```{r}
+hClusterUpdated = hclust(dist(t(log10(trainSpam[, 1:55] + 1))))
+plot(hClusterUpdated)
+```
+
+a little bit more interesting. few clusters are separated
+
+
+
+#statistical prediction/modeling
+
+should be informed by the results of your exploratory analysis
+
+exact methods depend on the question of interest
+
+transformations/processing should be accounted for when necessary
+
+measures of uncertainty should be reported
+
+go through each of the variables, and try to fit a generalizing model, in this case a logistic regression, to see if we can predict wether an email is spam or not by using just a single variable.
+
+
+
+```{r}
+trainSpam$numType = as.numeric(trainSpam$type) - 1
+
+costFunction = function(x, y) sum(x != (y > 0.5))
+
+cvError = rep(NA, 55)
+
+library(boot)
+
+for (i in 1:55) {
+        lmFormula = reformulate(names(trainSpam)[i], response = "numType")
+        glmFit = glm(lmFormula, family = "binomial", data = trainSpam)
+        cvError[i] = cv.glm(trainSpam, glmFit, costFunction, 2)$delta[2]
+}
+
+#which predictor has minimum cross-validated error?
+names(trainSpam)[which.min(cvError)]
+
+```
+
+charDollar is the indicator for the dollar sign in emails.
+
+#get a measure of uncertainty
+
+```{r}
+#use the best model from the group
+
+predictionModel = glm(numType ~ charDollar, family = "binomial", data = trainSpam)
+
+#get predictions on the test set
+predictionTest = predict(predictionModel, testSpam)
+predictedSpam = rep("nonspam", dim(testSpam)[1])
+
+#classify as 'spam' for those with prob > 0.5
+predictedSpam[predictionModel$fitted > 0.5] = "spam"
+```
+
+at what cutoff do we think the email is a spam?? 
+
+here we decided that it is 0.5
+
+```{r}
+table(predictedSpam, testSpam$type)
+```
+
+```{r}
+#Error rate
+(61 + 458)/(1346 + 458 + 61 + 449)
+```
+
+22% error rate
+
+#interpret results
+
+use the appropriate language 
+
+-describes
+
+-correlates with/ associated with
+
+-leads to/causes
+
+-predicts
+
+give an explanation
+
+interpret coefficients
+
+interpret measures of uncertainty
+
+#this example
+
+the fraction of characters that are dollar signs can be used to predict if anemail is Spam
+
+anything with more than 6.6% dollar signs is classified as spam
+
+more dollar signs always means more spam under our prediction
+
+our test set error rate was 22.4%
+
+#challenge results
+
+challenge all steps:
+
+-question
+-data source
+-processing
+-analysis
+-conclusions
+
+challenge measures of uncertainty
+
+challenge choices of terms to include in models
+
+think of potential alternative analyses
+
+
+#synthesize/write-up results
+
+lead with the question
+
+summarize the analyses into the story
+
+don't include every analysis, included it
+-if it is needed for the story
+-if it is needed to address a challenge
+
+order analyses according to the storym rather than chronologically
+
+include 'pretty' figures that contribute to the story
+
+
+#in our example
+
+lead with the question
+-can i use quantitative characteristics of the emails to classify them as spam/ham?
+
+describe the approach
+-collected data from UCI -> created training/test sets
+-explored relationships
+-choose logistic model on training set by cross validation
+-applied to test, 78% test set accuracy
+
+interpret results
+-number of dollar signs seems reasonable, e.g. "Make money with Viagra $$$$!"
+
+challenge results
+-78% isn't that great
+-i could use more variables
+-why logistic regression?
+
+
+maybe a non-linear modeling approach, more sophisticated..
+more variables in your approach..
+
+
+RMarkdown formatina alistim.
+
+
