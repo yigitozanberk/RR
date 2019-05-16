@@ -174,4 +174,10 @@ important when replication is impossible
 
 -for every field "X" there is a "Computational X"
 
+## Who reproduces research?
+
+-re-run analysis; check results match
+-check the code for bugs/errors
+-check the sensivity of the analysis
+
 
