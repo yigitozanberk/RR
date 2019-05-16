@@ -1,0 +1,231 @@
+---
+title: "Week 2 Classes"
+author: "yob"
+date: "5/14/2019"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Coding Standards in R
+
+1- always use text files / text editor
+
+2- indent your code
+
+3- limit the width of your code to ~80 columns
+select all, CMD + I
+try not to do more than 2 nested for loops
+
+4- limit the length of individual functions
+one basic activity per function
+
+## Markdown
+
+markdown is a text-to-HTML conversion tool for web writers.
+
+*This text will appear italicized!*
+
+**Bold**
+
+# main heading
+## secondary heading
+### tertiary heading
+
+-first item in list
+-second item in list
+-third item in list
+
+1. first item in list
+2. second item in list
+3. third item in list
+
+links
+[Download R](http://www.r-project.org/)
+
+Advanced linking
+
+I spend so much time reading [R bloggers][1] and [Simply statistics][2]!
+
+[1]: http://www.r-bloggers.com/ "R bloggers"
+[2]: http://simplystatistics.org. "Simply Statistics"
+
+
+Newlines require a double space after a line
+
+john grubers website for the official markdown documentation
+
+github markdown guide
+
+# R Markdown
+
+a core tool in literate statistical programming
+
+R markdown can be converted to standard markdown using the knitr package in R
+
+markdown can be converted to HTML using markdown package in R
+
+**slidify** package is easy fix for converting to slides
+
+
+
+My First R Markdown File 
+------------------------
+
+This is my first R Markdown file.
+
+Here, we're going to load some data.
+
+```{r}
+library(datasets)
+
+data(airquality)
+
+summary(airquality)
+```
+
+let's first make a parts plot of the data. 
+
+```{r}
+
+pairs(airquality)
+
+```
+
+
+here's a regression model of ozone on wind, solar R, and temperature
+
+```{r}
+library(stats)
+fit <- lm(Ozone ~ Wind + Solar.R + Temp, data = airquality)
+summary(fit)
+```
+
+# Literate Statistical Programming with knitr
+## Part 1
+
+literate programs are weaved to produce human-readable format, and tangled to produce machine-readable format
+
+save data in non-proprietary formats
+
+the code needs to run to be able to create the final document
+
+## Part 2
+
+what is knitr?
+
+an R package available on CRAN
+
+supports RMarkdown, LaTeX, and HTML as documentation languages
+
+can export to PDF, HTML
+
+[you need to know markdown language](http://goo.gl/MUt9i5)
+
+what is knitr good for?
+
+-manuals
+-short/medium-length technical documents
+-tutorials
+-reports
+-data preprocessing documents/summaries
+
+what is knitr not good for?
+
+-very long research articles
+-complex time-consuming computations
+-documents that require precise formatting
+
+## Part 3
+
+```{r}
+set.seed(1)
+x <- rnorm(100)
+mean(x)
+```
+
+code chunks can have names, which is useful when we start making graphics
+
+```{r firstchunk}
+print("hey")
+```
+
+## Part 4
+
+.Rmd -> .md -> .html
+
+```{r simulation, echo = FALSE}
+set.seed(1)
+x <- rnorm(100)
+mean(x)
+```
+you won't see the code, you will only see the output here.
+
+```{r, results = "hide"}
+print("the results of this code chunk will be hidden")
+
+```
+
+
+the current time is `r time` My favourite random number is `r rand`.
+
+you can use r codes inside sentences as above.
+
+incorporating graphics
+
+```{r scatterplot, fig.height = 4, echo = TRUE}
+x <- rnorm(100); y <- x + rnorm(100, sd = 0.5)
+par(mar = c(5, 4, 1, 1), las = 1)
+plot(x, y, main = "My Simulated Data")
+
+```
+
+
+it actually embeds the entire image inside the HTML file itself.
+
+not most efficient, but useful. everything is inside one file
+
+
+```{r fitmodel}
+library(datasets)
+data(airquality)
+fit <- lm(Ozone ~ Wind + Temp + Solar.R, data = airquality)
+
+```
+
+here is a table of regression coefficients.
+
+```{r showtable, results = "asis"}
+library(xtable)
+xt <- xtable(summary(fit))
+print(xt, type = "html")
+
+```
+
+## setting global options
+
+```{r setoptions, echo = FALSE}
+opts_chunk$set(echo = FALSE, results = "hide")
+opts_chunk$set(echo = TRUE, results = "asis")
+```
+
+output:
+results : "asis" , "hide"
+echo : TRUE, FALSE
+
+figures
+fig.height: numeric
+fig.width: numeric
+
+## caching computations
+
+what is one chunk takes a long time to run?
+
+the cache = TRUE option can be set on a chunk-by-chunk basis to store results of computation
+
+it will load the results from the disk if nothing is changed.
+
+if the data or the code changes, you need to re-run the cached code chunks
+
+dependencies are not checked explicitly. be careful.
+

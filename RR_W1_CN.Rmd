@@ -395,3 +395,40 @@ more variables in your approach..
 RMarkdown formatina alistim.
 
 
+##Organizing Your Analysis
+
+raw data should be stored in your analysis folder
+
+if accessed from the web, include url, description, and date accessed in README
+
+processed data should be named so it is easy to see which script generated the data
+
+the processing script-processed data mapping should occur in README
+
+processed data should be *tidy*
+
+exploratory figures
+
+final figures - possibly multiple panels
+-usually four or five figures
+
+raw scripts
+
+final scripts
+-small comments liberally - what, when, why, how
+-bigger commentd blocks for whole sections
+include processing details
+
+R markdown files
+
+readme files not necessary if you use R markdown.
+
+text of the document, report.. introduction, methods, results, the story...
+
+further resources on the web : managing a statistical analysis project guidelines and best practices
+
+
+
+
+
+
