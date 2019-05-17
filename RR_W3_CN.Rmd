@@ -181,3 +181,22 @@ important when replication is impossible
 -check the sensivity of the analysis
 
 
+### DSM Modules for time series studies of Air pollution and helath
+things you want to see:
+1. check for outliers, high leverage, overdispersion
+2. fill in missing data? NO! (doesn't turn out well in this case)
+data systematically missing. not random NAs, systematic NAs.
+3. model selection: estimate degrees of freedom to adjust for unmeasured confounders
+ - other aspects of model not as critical
+4. multiple lag analysis
+5. sensitivity analysis wrt
+ -unmeasured confounder adjustment
+ -influential points
+
+### For the future: One DSM is not enough, we need many!
+Different problems warrant different approaches and expertise
+a curated library of machines providing state-of-the-art analysis pipelines
+a cran/cpan/ctan/... for data analysis
+or a 'cochrane collaboration' for data analysis as an example
+
+

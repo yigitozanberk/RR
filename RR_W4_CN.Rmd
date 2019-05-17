@@ -1,0 +1,56 @@
+---
+title: "Week 4"
+author: "yob"
+date: "5/17/2019"
+output: html_document
+---
+Caching computations, case study:air pollution, case study:high throughput biology, commentaries on data analysis
+
+# Caching Computations
+
+## the cacher package for R
+
+add-on package for R
+evaluates code written in files and stores intermediate results in a key-value database
+R expressions are given SHA-1 hash values so that changes can be tracked and code reevaluated if neceessary
+'cacher packages' can be built for distribution
+others can 'clone' an analysis and evaluate subsets of code
+
+-cachepackage function creates a cacher package
+
+# Case Study : Air Pollution
+
+## what causes pm to be toxic?
+- pm is composed of many different chemical elements
+-some componenets of pm may be more harmful than others
+-some sources of pm may be more dangerous than otgers
+-identifying harmful chemical constituents may lead us to strategies for  controlling sources of PM
+
+## NMMAPS
+
+the national morbidity, mortality, and air pollution study (NMMAPS) was a national study of the short-term health effects of ambient air pollution
+
+data made available at the internet-based health and air pollution surveillance system
+
+http://www.ihapss.jhsph.edu
+
+# Case Study : High Throughput Biology
+
+using genomic signatures to guide the use of chemotherapeutics(chemo-sensitivity)
+
+public data on national cancer institute
+
+NCI60 to predict sensitivity - Nature Medicine
+
+http://bioinformatics.mdanderson.org/Supplements/ReproRsch-Chemo
+
+Keith Baggerly, professor in the biostatistics and bioinformatics department at the MD anderson cancer center
+
+Kevin Coombes, Shannon Neeley, Jing Wang
+David Ransohoff, Gordon Mills
+
+Jane Fridlyand, Lajos Pusztai, Zoltan Szallasi
+
+
+
+
